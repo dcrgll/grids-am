@@ -90,9 +90,9 @@ export default function LastFMForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: 'dancargill',
+      username: '',
       period: LastFMPeriod.sevenDays,
-      gridSize: gridSize[3].value
+      gridSize: LastFMGridSize.three
     }
   })
 
