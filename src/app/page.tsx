@@ -1,53 +1,114 @@
-import Link from "next/link";
+'use client'
 
-import { LatestPost } from "@/app/_components/post";
-import { api, HydrateClient } from "@/trpc/server";
+import { useState } from 'react'
 
-export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
+import { type Album } from '@/types/album'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import ImageGrid from '@/components/image-grid'
+import LastFMForm from '@/components/lastfm-form'
 
-  void api.post.getLatest.prefetch();
+export default function Home() {
+  const [albums, setAlbums] = useState<Album[]>([])
+  const [cols, setCols] = useState<number>(3)
+  const [dataUrl, setDataUrl] = useState<string | null>(null)
 
   return (
-    <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-          </h1>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">First Steps →</h3>
-              <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
-              </div>
-            </Link>
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
+    <main className="flex min-h-screen flex-col p-4 lg:p-24">
+      <div className="container">
+        <div className="flex flex-col gap-4 lg:flex-row">
+          <div className="w-full lg:w-2/5">
+            <Card className="mx-auto w-full lg:max-w-md">
+              <CardHeader>
+                <CardTitle>Last.fm Collage Generator</CardTitle>
+                <CardDescription>
+                  Generate a collage of your most listened to albums from
+                  Last.fm.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <LastFMForm setAlbums={setAlbums} setCols={setCols} />
+              </CardContent>
+            </Card>
+            <p className="mt-2 text-center text-sm text-gray-500">
+              <a href="https://last.fm/user/dancargill">
+                What a pain in the ass Last.fm is.
+              </a>
             </p>
-          </div>
 
-          <LatestPost />
+            {dataUrl && (
+              <Button
+                onClick={async () => {
+                  const blob = dataURItoBlob(dataUrl)
+
+                  const filesArray = [
+                    new File([blob], 'lastfm-collage.png', {
+                      type: 'image/png',
+                      lastModified: Date.now()
+                    })
+                  ]
+
+                  const shareData = {
+                    title: 'Last.fm Collage',
+                    files: filesArray,
+                    url: document.location.origin
+                  }
+
+                  if (navigator?.canShare(shareData)) {
+                    await navigator.share(shareData)
+                  }
+                }}
+                className="mt-4 w-full"
+                variant="link"
+              >
+                Share this thing
+              </Button>
+            )}
+          </div>
+          <div className="flex w-full justify-center">
+            {albums.length > 0 ? (
+              <ImageGrid
+                albums={albums}
+                cols={cols}
+                dataUrl={dataUrl}
+                setDataUrl={setDataUrl}
+              />
+            ) : (
+              <Skeleton className="h-[900px] w-[900px] rounded-xl" />
+            )}
+          </div>
         </div>
-      </main>
-    </HydrateClient>
-  );
+      </div>
+    </main>
+  )
+}
+
+function dataURItoBlob(dataURI: string) {
+  // convert base64 to raw binary data held in a string
+  // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+  const byteString = atob(dataURI.split(',')[1] ?? '')
+  // separate out the mime component
+  const mimeString = dataURI.split(',')[0]?.split(':')[1]?.split(';')[0] ?? ''
+
+  // write the bytes of the string to an ArrayBuffer
+  const ab = new ArrayBuffer(byteString.length)
+
+  // create a view into the buffer
+  const ia = new Uint8Array(ab)
+
+  // set the bytes of the buffer to the correct values
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i)
+  }
+
+  // write the ArrayBuffer to a blob, and you're done
+  const blob = new Blob([ab], { type: mimeString })
+  return blob
 }

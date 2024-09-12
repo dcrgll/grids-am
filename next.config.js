@@ -1,10 +1,21 @@
-/**
- * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
- * for Docker builds.
- */
-await import("./src/env.js");
+/** @type {import('next').NextConfig} */
 
-/** @type {import("next").NextConfig} */
-const config = {};
+import { fileURLToPath } from 'node:url'
+import createJiti from 'jiti'
 
-export default config;
+const jiti = createJiti(fileURLToPath(import.meta.url))
+
+jiti('./src/env')
+
+const nextConfig = {
+  async rewrites() {
+    return [
+      {
+        source: '/api/images/:path*',
+        destination: 'https://lastfm.freetls.fastly.net/:path*'
+      }
+    ]
+  }
+}
+
+export default nextConfig
