@@ -3,6 +3,7 @@
 import { api } from '@/trpc/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { sendGAEvent } from '@next/third-parties/google'
+import Cookies from 'js-cookie'
 import { Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -90,7 +91,7 @@ export default function LastFMForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: '',
+      username: Cookies.get('lastfm_username') ?? '',
       period: LastFMPeriod.sevenDays,
       gridSize: LastFMGridSize.three
     }
@@ -99,8 +100,10 @@ export default function LastFMForm({
   function onSubmit(values: z.infer<typeof formSchema>) {
     setAlbums([])
     sendGAEvent('event', 'form_submitted', { value: values.username })
-
     setCols(parseInt(values.gridSize))
+
+    Cookies.set('lastfm_username', values.username)
+
     mutate({
       username: values.username,
       period: values.period,
@@ -121,7 +124,11 @@ export default function LastFMForm({
             <FormItem>
               <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="last.fm username" {...field} />
+                <Input
+                  placeholder="last.fm username"
+                  {...field}
+                  autoComplete="off"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
