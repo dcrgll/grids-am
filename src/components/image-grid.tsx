@@ -77,6 +77,9 @@ export default function ImageGrid({
           ctx.fillText(titleLine, textX, textY)
         })
 
+        // for some stupid reason, this first canvas is not allowing images to be created from it.
+        // so we need to create a new canvas and draw the image on it,
+        // and then use the toDataURL() method to get the desired output;
         const destinationCanvas = document.createElement('canvas')
         destinationCanvas.width = canvas.width
         destinationCanvas.height = canvas.height
@@ -96,6 +99,12 @@ export default function ImageGrid({
         setDataUrl(url)
       } catch {
       } finally {
+        setTimeout(() => {
+          window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+          })
+        }, 200)
       }
     }
 

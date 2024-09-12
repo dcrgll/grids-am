@@ -121,7 +121,7 @@ export default function LastFMForm({
             <FormItem>
               <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="username" {...field} />
+                <Input placeholder="last.fm username" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
