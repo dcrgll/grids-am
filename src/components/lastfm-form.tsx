@@ -93,7 +93,7 @@ export default function LastFMForm({
     defaultValues: {
       username: Cookies.get('lastfm_username') ?? '',
       period: LastFMPeriod.sevenDays,
-      gridSize: LastFMGridSize.three
+      gridSize: LastFMGridSize.five
     }
   })
 
