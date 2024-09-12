@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 
 import { type Album } from '@/types/album'
 import { Button } from '@/components/ui/button'
@@ -21,11 +22,11 @@ export default function Home() {
   const [dataUrl, setDataUrl] = useState<string | null>(null)
 
   return (
-    <main className="flex min-h-screen flex-col p-4 lg:p-24">
+    <main className="flex min-h-screen flex-col p-4 xl:p-24">
       <div className="container">
-        <div className="flex flex-col gap-4 lg:flex-row">
-          <div className="w-full lg:w-2/5">
-            <Card className="mx-auto w-full lg:max-w-md">
+        <div className="flex flex-col gap-4 xl:flex-row">
+          <div className="w-full xl:w-2/5">
+            <Card className="mx-auto w-full xl:max-w-md">
               <CardHeader>
                 <CardTitle>Last.fm Collage Generator</CardTitle>
                 <CardDescription>
@@ -71,6 +72,14 @@ export default function Home() {
                 Share this thing
               </Button>
             )}
+
+            <Image
+              src="/headphones.png"
+              alt="Last.fm Collage"
+              className="fixed -bottom-8 -left-8 hidden -scale-x-100 xl:block"
+              width={300}
+              height={300}
+            />
           </div>
           <div className="flex w-full justify-center">
             {albums.length > 0 ? (
