@@ -46,30 +46,11 @@ export default function Home() {
 
             {dataUrl && (
               <Button
-                onClick={async () => {
-                  const blob = dataURItoBlob(dataUrl)
-
-                  const filesArray = [
-                    new File([blob], 'lastfm-collage.png', {
-                      type: 'image/png',
-                      lastModified: Date.now()
-                    })
-                  ]
-
-                  const shareData = {
-                    title: 'Last.fm Collage',
-                    files: filesArray,
-                    url: document.location.origin
-                  }
-
-                  if (navigator?.canShare(shareData)) {
-                    await navigator.share(shareData)
-                  }
-                }}
+                onClick={() => triggerShare(dataUrl)}
                 className="mt-4 w-full"
                 variant="link"
               >
-                Share this thing
+                ✨ Share this thing ✨
               </Button>
             )}
 
@@ -120,4 +101,25 @@ function dataURItoBlob(dataURI: string) {
   // write the ArrayBuffer to a blob, and you're done
   const blob = new Blob([ab], { type: mimeString })
   return blob
+}
+
+async function triggerShare(dataUrl: string) {
+  const blob = dataURItoBlob(dataUrl)
+
+  const filesArray = [
+    new File([blob], 'lastfm-collage.png', {
+      type: 'image/png',
+      lastModified: Date.now()
+    })
+  ]
+
+  const shareData = {
+    title: 'Last.fm Collage',
+    files: filesArray,
+    url: document.location.origin
+  }
+
+  if (navigator?.canShare(shareData)) {
+    await navigator.share(shareData)
+  }
 }
