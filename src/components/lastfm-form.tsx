@@ -2,8 +2,8 @@
 
 import { api } from '@/trpc/react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { sendGAEvent } from '@next/third-parties/google'
 import { Loader2 } from 'lucide-react'
-// import { sendGAEvent } from '@next/third-parties/google'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -98,7 +98,7 @@ export default function LastFMForm({
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setAlbums([])
-    // sendGAEvent('event', 'form_submitted', { value: values.domain })
+    sendGAEvent('event', 'form_submitted', { value: values.username })
 
     setCols(parseInt(values.gridSize))
     mutate({

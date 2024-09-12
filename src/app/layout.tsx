@@ -1,7 +1,8 @@
 import '@/styles/globals.css'
 
-import { type Metadata } from 'next'
+import { env } from 'process'
 import { TRPCReactProvider } from '@/trpc/react'
+import { GoogleAnalytics } from '@next/third-parties/google'
 import { GeistSans } from 'geist/font/sans'
 
 import { meta } from '@/lib/meta'
@@ -18,6 +19,7 @@ export default function RootLayout({
       <body>
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
+      <GoogleAnalytics gaId={env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID!} />
     </html>
   )
 }
