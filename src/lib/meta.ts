@@ -17,6 +17,12 @@ export const meta = {
   openGraph: {
     url: site.url,
     title: site.title,
-    description: site.description
+    description: site.description,
+    siteName: site.title,
+    images: [
+      {
+        url: '/og-image.png'
+      }
+    ]
   }
 } as Metadata

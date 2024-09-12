@@ -100,6 +100,7 @@ export default function ImageGrid({
     }
 
     void drawImage()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [albums, cols, imageSources])
 
   return (
