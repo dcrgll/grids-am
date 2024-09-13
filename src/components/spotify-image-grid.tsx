@@ -25,7 +25,6 @@ export default function SpotifyImageGrid({
   setDataUrl: (dataUrl: string) => void
   labels: boolean
 }) {
-  console.log({ albums })
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
   useEffect(() => {

@@ -41,6 +41,7 @@ export default function SpotifyPage() {
       }
 
       if (!response.ok) {
+        cookies.remove('spotify_access_token')
         setIsLoggedIn(false)
       }
 
