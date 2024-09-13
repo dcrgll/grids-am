@@ -1,8 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 // import { sendGAEvent } from '@next/third-parties/google'
 import Cookies from 'js-cookie'
+import { Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -83,8 +85,11 @@ export default function SpotifyForm({
     }
   })
 
+  const [isLoading, setIsLoading] = useState(false)
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setAlbums([])
+    setIsLoading(true)
     // sendGAEvent('event', 'form_submitted', { value: values.username })
     setCols(parseInt(values.gridSize))
     setLabels(values.labels)
@@ -95,6 +100,10 @@ export default function SpotifyForm({
       period: values.period as SpotifyPeriod
     })
     setAlbums(albumData)
+
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 2000)
   }
 
   return (
@@ -189,7 +198,11 @@ export default function SpotifyForm({
           type="submit"
           className="w-full bg-green-600 text-white hover:bg-green-700"
         >
-          Create Spotify Collage
+          {isLoading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            'Create Spotify Collage'
+          )}
         </Button>
       </form>
     </Form>

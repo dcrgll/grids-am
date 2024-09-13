@@ -1,9 +1,9 @@
 import { type Metadata } from 'next'
 
 const site = {
-  url: 'https://lastfm.cargill.dev',
-  title: 'Last.fm Album Cover Generator',
-  description: 'Generate album covers from your Last.fm library'
+  url: 'https://grids.am',
+  title: 'Grids',
+  description: 'Generate album covers from your music library'
 }
 
 export const meta = {

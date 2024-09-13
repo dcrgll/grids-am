@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Spotify Collage Generator',
+  title: 'Grids // Spotify',
   description:
     'Generate a collage of your most listened to albums from Spotify.'
 }
