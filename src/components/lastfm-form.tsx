@@ -11,6 +11,7 @@ import { z } from 'zod'
 import { type Album } from '@/types/album'
 import { LastFMGridSize, LastFMPeriod } from '@/types/lastfm'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Form,
   FormControl,
@@ -34,7 +35,8 @@ const formSchema = z.object({
   }),
 
   period: z.string(),
-  gridSize: z.string()
+  gridSize: z.string(),
+  labels: z.boolean()
 })
 
 const periods = {
@@ -77,10 +79,12 @@ const gridSize = {
 
 export default function LastFMForm({
   setAlbums,
-  setCols
+  setCols,
+  setLabels
 }: {
   setAlbums: (albums: Album[]) => void
   setCols: (cols: number) => void
+  setLabels: (labels: boolean) => void
 }) {
   const { mutate, isPending } = api.lastfm.getTopAlbums.useMutation({
     onSuccess: async (data) => {
@@ -93,7 +97,8 @@ export default function LastFMForm({
     defaultValues: {
       username: Cookies.get('lastfm_username') ?? '',
       period: LastFMPeriod.sevenDays,
-      gridSize: LastFMGridSize.five
+      gridSize: LastFMGridSize.five,
+      labels: true
     }
   })
 
@@ -101,7 +106,7 @@ export default function LastFMForm({
     setAlbums([])
     sendGAEvent('event', 'form_submitted', { value: values.username })
     setCols(parseInt(values.gridSize))
-
+    setLabels(values.labels)
     Cookies.set('lastfm_username', values.username)
 
     mutate({
@@ -193,6 +198,26 @@ export default function LastFMForm({
                 </Select>
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="labels"
+          render={({ field }) => (
+            <FormItem className="my-2 flex flex-row items-center space-x-3 space-y-0">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="leading-none">
+                <FormLabel className="text-sm font-normal">
+                  Display album/artist labels?
+                </FormLabel>
+              </div>
             </FormItem>
           )}
         />

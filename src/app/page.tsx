@@ -21,6 +21,7 @@ export default function Home() {
   const [albums, setAlbums] = useState<Album[]>([])
   const [cols, setCols] = useState<number>(3)
   const [dataUrl, setDataUrl] = useState<string | null>(null)
+  const [labels, setLabels] = useState<boolean>(true)
 
   return (
     <main className="flex min-h-screen flex-col p-4 xl:p-24">
@@ -36,7 +37,11 @@ export default function Home() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <LastFMForm setAlbums={setAlbums} setCols={setCols} />
+                <LastFMForm
+                  setAlbums={setAlbums}
+                  setCols={setCols}
+                  setLabels={setLabels}
+                />
               </CardContent>
             </Card>
             <p className="mt-2 text-center text-sm text-gray-500">
@@ -68,6 +73,7 @@ export default function Home() {
                 cols={cols}
                 dataUrl={dataUrl}
                 setDataUrl={setDataUrl}
+                labels={labels}
               />
             ) : (
               <Skeleton className="h-[900px] w-[900px] rounded-xl" />
