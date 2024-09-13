@@ -38,19 +38,7 @@ export async function getTopAlbums({
 
   const data = (await res.json()) as { topalbums: { album: Album[] } }
 
-  return sortByArtist(data.topalbums.album)
-}
-
-export const sortByArtist = (data: Album[]) => {
-  return data.sort((a, b) => {
-    if (a.artist.name < b.artist.name) {
-      return -1
-    }
-    if (a.artist.name > b.artist.name) {
-      return 1
-    }
-    return 0
-  })
+  return data.topalbums.album
 }
 
 export const getLimit = (gridsize: LastFMGridSize) => {
