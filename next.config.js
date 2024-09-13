@@ -11,8 +11,12 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/images/:path*',
+        source: '/api/lastfm/images/:path*',
         destination: 'https://lastfm.freetls.fastly.net/:path*'
+      },
+      {
+        source: '/api/spotify/images/:path*',
+        destination: 'https://i.scdn.co/:path*'
       }
     ]
   }

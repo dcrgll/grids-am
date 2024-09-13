@@ -173,7 +173,7 @@ const loadImages = async (
 
           img.src = album.src.replace(
             'https://lastfm.freetls.fastly.net/',
-            '/api/images/'
+            '/api/lastfm/images/'
           )
 
           img.onload = () =>

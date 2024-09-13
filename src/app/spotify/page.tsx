@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { type Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
+import cookies from 'js-cookie'
 
-import { type Album } from '@/types/album'
+import { type SpotifyAlbum } from '@/types/spotify'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -14,13 +16,50 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import LastFMForm from '@/components/lastfm-form'
-import ImageGrid from '@/components/lastfm-image-grid'
+import LoginWithSpotifyButton from '@/components/login-with-spotify'
+import SpotifyForm from '@/components/spotify-form'
+import SpotifyImageGrid from '@/components/spotify-image-grid'
 
-export default function Home() {
-  const [albums, setAlbums] = useState<Album[]>([])
+export default function SpotifyPage() {
+  const [albums, setAlbums] = useState<SpotifyAlbum[]>([])
   const [cols, setCols] = useState<number>(3)
   const [dataUrl, setDataUrl] = useState<string | null>(null)
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
+
+  const accessToken = cookies.get('spotify_access_token')
+
+  useEffect(() => {
+    const getUserData = async () => {
+      const response = await fetch('https://api.spotify.com/v1/me', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+
+      const data = (await response.json()) as {
+        error?: string
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      return data
+    }
+
+    if (accessToken) {
+      const data = getUserData() as {
+        error?: string
+      }
+
+      if (data.error) {
+        cookies.remove('spotify_access_token')
+        return setIsLoggedIn(false)
+      }
+
+      return setIsLoggedIn(true)
+    }
+  }, [])
 
   return (
     <main className="flex min-h-screen flex-col p-4 xl:p-24">
@@ -29,18 +68,22 @@ export default function Home() {
           <div className="w-full xl:w-2/5">
             <Card className="mx-auto w-full xl:max-w-md">
               <CardHeader>
-                <CardTitle>Last.fm Collage Generator</CardTitle>
+                <CardTitle>Spotify Collage Generator</CardTitle>
                 <CardDescription>
                   Generate a collage of your most listened to albums from
-                  Last.fm.
+                  Spotify
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <LastFMForm setAlbums={setAlbums} setCols={setCols} />
+                {isLoggedIn ? (
+                  <SpotifyForm setAlbums={setAlbums} setCols={setCols} />
+                ) : (
+                  <LoginWithSpotifyButton />
+                )}
               </CardContent>
             </Card>
             <p className="mt-2 text-center text-sm text-gray-500">
-              <Link href="/spotify">Want the Spotify version?</Link>
+              <Link href="/">Want the Last.fm version?</Link>
             </p>
 
             {dataUrl && (
@@ -63,7 +106,7 @@ export default function Home() {
           </div>
           <div className="flex w-full justify-center">
             {albums.length > 0 ? (
-              <ImageGrid
+              <SpotifyImageGrid
                 albums={albums}
                 cols={cols}
                 dataUrl={dataUrl}
@@ -122,3 +165,41 @@ async function triggerShare(dataUrl: string) {
     await navigator.share(shareData)
   }
 }
+
+// import { useEffect, useState } from 'react'
+// import cookies from 'js-cookie'
+
+// import LoginWithSpotifyButton from '@/components/login-with-spotify'
+// import SpotifyImageGrid from '@/components/spotify-image-grid'
+
+// export default function SpotifyPage() {
+//   const accessToken = cookies.get('spotify_access_token')
+//   const [albumData, setAlbumData] = useState([])
+
+//   useEffect(() => {
+//     if (accessToken) {
+//       void getAlbumData(accessToken).then(setAlbumData).catch(console.error)
+//     }
+//   }, [accessToken])
+
+//   useEffect(() => {
+//     console.log(albumData)
+//   }, [albumData])
+
+//   if (accessToken) {
+//     return (
+//       <main className="flex min-h-screen flex-col items-center justify-center">
+//         {albumData.length > 0 && (
+//           <SpotifyImageGrid
+//             cols={3}
+//             albums={albumData}
+//             dataUrl={null}
+//             setDataUrl={getAlbumData}
+//           />
+//         )}
+//       </main>
+//     )
+//   }
+
+//   return <LoginWithSpotifyButton />
+// }
