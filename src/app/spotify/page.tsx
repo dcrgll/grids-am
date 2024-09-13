@@ -41,7 +41,7 @@ export default function SpotifyPage() {
       }
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        setIsLoggedIn(false)
       }
 
       return data
@@ -165,41 +165,3 @@ async function triggerShare(dataUrl: string) {
     await navigator.share(shareData)
   }
 }
-
-// import { useEffect, useState } from 'react'
-// import cookies from 'js-cookie'
-
-// import LoginWithSpotifyButton from '@/components/login-with-spotify'
-// import SpotifyImageGrid from '@/components/spotify-image-grid'
-
-// export default function SpotifyPage() {
-//   const accessToken = cookies.get('spotify_access_token')
-//   const [albumData, setAlbumData] = useState([])
-
-//   useEffect(() => {
-//     if (accessToken) {
-//       void getAlbumData(accessToken).then(setAlbumData).catch(console.error)
-//     }
-//   }, [accessToken])
-
-//   useEffect(() => {
-//     console.log(albumData)
-//   }, [albumData])
-
-//   if (accessToken) {
-//     return (
-//       <main className="flex min-h-screen flex-col items-center justify-center">
-//         {albumData.length > 0 && (
-//           <SpotifyImageGrid
-//             cols={3}
-//             albums={albumData}
-//             dataUrl={null}
-//             setDataUrl={getAlbumData}
-//           />
-//         )}
-//       </main>
-//     )
-//   }
-
-//   return <LoginWithSpotifyButton />
-// }
