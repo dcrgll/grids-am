@@ -16,12 +16,14 @@ export default function SpotifyImageGrid({
   albums,
   cols = 3,
   dataUrl,
-  setDataUrl
+  setDataUrl,
+  labels
 }: {
   albums: SpotifyAlbum[]
   cols?: number
   dataUrl: string | null
   setDataUrl: (dataUrl: string) => void
+  labels: boolean
 }) {
   console.log({ albums })
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -48,32 +50,34 @@ export default function SpotifyImageGrid({
           // Draw the image on the canvas
           ctx.drawImage(imageObj.img, x, y, imgSize, imgSize)
 
-          // Set font and styles for text
-          ctx.font = '10px Menlo, monospace'
-          ctx.fillStyle = 'white'
-          ctx.textAlign = 'left' // Align text to the left
-          ctx.textBaseline = 'bottom' // Set text baseline to bottom
+          if (labels) {
+            // Set font and styles for text
+            ctx.font = '10px Menlo, monospace'
+            ctx.fillStyle = 'white'
+            ctx.textAlign = 'left' // Align text to the left
+            ctx.textBaseline = 'bottom' // Set text baseline to bottom
 
-          // Define text positioning for bottom-left corner
-          const textX = x + 5 // 10px padding from the left edge
-          const textY = y + imgSize - 5 // 10px padding from the bottom edge
+            // Define text positioning for bottom-left corner
+            const textX = x + 5 // 10px padding from the left edge
+            const textY = y + imgSize - 5 // 10px padding from the bottom edge
 
-          // Define max width for text wrapping and line height
-          const maxWidth = imgSize - 20 // Add some padding from image edges
-          const lineHeight = 18
+            // Define max width for text wrapping and line height
+            const maxWidth = imgSize - 20 // Add some padding from image edges
+            const lineHeight = 18
 
-          // Wrap the text into multiple lines
-          const { artistLine, titleLine } = wrapText(ctx, imageObj, maxWidth)
+            // Wrap the text into multiple lines
+            const { artistLine, titleLine } = wrapText(ctx, imageObj, maxWidth)
 
-          // Set background color and draw the background rectangle for the text
-          const textHeight = 2 * lineHeight // Now we always have 2 lines
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.5)' // Semi-transparent black background
-          ctx.fillRect(x, textY - textHeight - -2, imgSize, textHeight + 20) // Background behind the text
+            // Set background color and draw the background rectangle for the text
+            const textHeight = 2 * lineHeight // Now we always have 2 lines
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)' // Semi-transparent black background
+            ctx.fillRect(x, textY - textHeight - -2, imgSize, textHeight + 20) // Background behind the text
 
-          // Draw the text on top of the background
-          ctx.fillStyle = 'white' // Reset text color to white
-          ctx.fillText(artistLine, textX, textY - lineHeight)
-          ctx.fillText(titleLine, textX, textY)
+            // Draw the text on top of the background
+            ctx.fillStyle = 'white' // Reset text color to white
+            ctx.fillText(artistLine, textX, textY - lineHeight)
+            ctx.fillText(titleLine, textX, textY)
+          }
         })
 
         // for some stupid reason, this first canvas is not allowing images to be created from it.

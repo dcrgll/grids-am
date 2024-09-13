@@ -25,6 +25,7 @@ export default function SpotifyPage() {
   const [cols, setCols] = useState<number>(3)
   const [dataUrl, setDataUrl] = useState<string | null>(null)
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
+  const [labels, setLabels] = useState<boolean>(true)
 
   const accessToken = cookies.get('spotify_access_token')
 
@@ -76,7 +77,11 @@ export default function SpotifyPage() {
               </CardHeader>
               <CardContent>
                 {isLoggedIn ? (
-                  <SpotifyForm setAlbums={setAlbums} setCols={setCols} />
+                  <SpotifyForm
+                    setAlbums={setAlbums}
+                    setCols={setCols}
+                    setLabels={setLabels}
+                  />
                 ) : (
                   <LoginWithSpotifyButton />
                 )}
@@ -111,6 +116,7 @@ export default function SpotifyPage() {
                 cols={cols}
                 dataUrl={dataUrl}
                 setDataUrl={setDataUrl}
+                labels={labels}
               />
             ) : (
               <Skeleton className="h-[900px] w-[900px] rounded-xl" />
