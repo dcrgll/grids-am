@@ -15,6 +15,7 @@ export default function SpotifyCallbackPage() {
     }
 
     void router.push('/spotify')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

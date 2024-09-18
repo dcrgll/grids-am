@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { api } from '@/trpc/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 // import { sendGAEvent } from '@next/third-parties/google'
-import Cookies from 'js-cookie'
+
 import { Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -76,6 +76,12 @@ export default function SpotifyForm({
   setCols: (cols: number) => void
   setLabels: (labels: boolean) => void
 }) {
+  const { mutate, isPending } = api.spotify.getTopAlbums.useMutation({
+    onSuccess: ({ response }) => {
+      setAlbums(response)
+    }
+  })
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -85,25 +91,16 @@ export default function SpotifyForm({
     }
   })
 
-  const [isLoading, setIsLoading] = useState(false)
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setAlbums([])
-    setIsLoading(true)
+
     // sendGAEvent('event', 'form_submitted', { value: values.username })
     setCols(parseInt(values.gridSize))
     setLabels(values.labels)
-    const accessToken = Cookies.get('spotify_access_token')
 
-    const albumData = await getAlbumData({
-      accessToken: accessToken!,
-      period: values.period as SpotifyPeriod
+    mutate({
+      period: values.period
     })
-    setAlbums(albumData)
-
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 2000)
   }
 
   return (
@@ -198,7 +195,7 @@ export default function SpotifyForm({
           type="submit"
           className="w-full bg-green-600 text-white hover:bg-green-700"
         >
-          {isLoading ? (
+          {isPending ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             'Create Spotify Collage'
@@ -207,73 +204,4 @@ export default function SpotifyForm({
       </form>
     </Form>
   )
-}
-
-interface SpotifyTrack {
-  album: {
-    name: string
-    images: { url: string }[]
-  }
-  artists: { name: string }[]
-}
-
-async function getTopTracks(accessToken: string, period: SpotifyPeriod) {
-  const limit = 50
-
-  try {
-    const response = await fetch(
-      `https://api.spotify.com/v1/me/top/tracks?limit=${limit}&time_range=${period}`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      }
-    )
-
-    const data = (await response.json()) as {
-      items: SpotifyTrack[]
-    }
-
-    return data
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-async function getAlbumData({
-  accessToken,
-  period
-}: {
-  accessToken: string
-  period: SpotifyPeriod
-}) {
-  const topTracks = await getTopTracks(accessToken, period)
-
-  if (!topTracks?.items) {
-    return []
-  }
-
-  const albumData = topTracks.items.map(
-    (track: {
-      album: {
-        name: string
-        images: { url: string }[]
-      }
-      artists: { name: string }[]
-    }) => ({
-      name: track.album.name,
-      artist: track.artists[0]?.name,
-      src: track.album.images[0]?.url
-    })
-  ) as SpotifyAlbum[]
-
-  return removeDuplicateAlbums(albumData)
-}
-
-export async function removeDuplicateAlbums(albumData: SpotifyAlbum[]) {
-  const uniqueAlbums = albumData.filter(
-    (album, index, self) =>
-      index === self.findIndex((t) => t.name === album.name)
-  )
-  return uniqueAlbums
 }

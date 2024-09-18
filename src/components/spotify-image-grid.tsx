@@ -98,6 +98,7 @@ export default function SpotifyImageGrid({
 
         //finally use the destinationCanvas.toDataURL() method to get the desired output;
         const url = destinationCanvas.toDataURL()
+
         setDataUrl(url)
       } catch {
       } finally {

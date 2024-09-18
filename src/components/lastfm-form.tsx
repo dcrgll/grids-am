@@ -87,8 +87,8 @@ export default function LastFMForm({
   setLabels: (labels: boolean) => void
 }) {
   const { mutate, isPending } = api.lastfm.getTopAlbums.useMutation({
-    onSuccess: async (data) => {
-      setAlbums(data.response)
+    onSuccess: async ({ response }) => {
+      setAlbums(response)
     }
   })
 

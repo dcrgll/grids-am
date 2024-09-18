@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { api } from '@/trpc/react'
 import cookies from 'js-cookie'
 
 import { type SpotifyAlbum } from '@/types/spotify'
@@ -27,40 +28,17 @@ export default function SpotifyPage() {
   const [labels, setLabels] = useState<boolean>(true)
 
   const accessToken = cookies.get('spotify_access_token')
+  const { data: userData } = api.spotify.getUserData.useQuery()
 
   useEffect(() => {
-    const getUserData = async () => {
-      const response = await fetch('https://api.spotify.com/v1/me', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      })
-
-      const data = (await response.json()) as {
-        error?: string
-      }
-
-      if (!response.ok) {
-        cookies.remove('spotify_access_token')
-        setIsLoggedIn(false)
-      }
-
-      return data
-    }
-
     if (accessToken) {
-      const data = getUserData() as {
-        error?: string
+      if (userData) {
+        return setIsLoggedIn(true)
       }
-
-      if (data.error) {
-        cookies.remove('spotify_access_token')
-        return setIsLoggedIn(false)
-      }
-
-      return setIsLoggedIn(true)
     }
-  }, [])
+
+    return setIsLoggedIn(false)
+  }, [accessToken, userData])
 
   return (
     <main className="flex min-h-screen flex-col p-4 xl:p-24">

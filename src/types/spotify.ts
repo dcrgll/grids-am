@@ -16,3 +16,11 @@ export type SpotifyAlbum = {
   name: string
   artist: string
 }
+
+export type SpotifyTrack = {
+  album: {
+    name: string
+    images: { url: string }[]
+  }
+  artists: { name: string }[]
+}

@@ -44,6 +44,7 @@ export default function ImageGrid({
     const drawImage = async () => {
       try {
         const images = await loadImages(imageSources)
+
         ;(images as ImageObj[]).forEach((imageObj, i) => {
           const x = (i % cols) * imgSize // x position
           const y = Math.floor(i / cols) * imgSize // y position
@@ -175,13 +176,21 @@ const loadImages = async (
         new Promise((resolve, reject) => {
           const img = new Image()
 
-          img.src = album.src.replace(
-            'https://lastfm.freetls.fastly.net/',
-            '/api/lastfm/images/'
-          )
+          if (album.src.includes('https://lastfm.freetls.fastly.net/')) {
+            img.src = album.src.replace(
+              'https://lastfm.freetls.fastly.net/',
+              '/api/lastfm/images/'
+            )
+          } else {
+            img.src = '/placeholder.png'
+          }
 
-          img.onload = () =>
+          img.onload = () => {
             resolve({ img, label: album.label, artist: album.artist })
+          }
+
+          // if the image is not found, we need to use a placeholder image
+
           img.onerror = reject
         })
     )
