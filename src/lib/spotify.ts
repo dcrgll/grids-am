@@ -17,6 +17,8 @@ async function getTopTracks(accessToken: string, period: SpotifyPeriod) {
       }
     )
 
+    console.log(response, 'response')
+
     const data = (await response.json()) as {
       items: SpotifyTrack[]
     }
@@ -73,6 +75,8 @@ export async function getUserData(accessToken: string) {
         Authorization: `Bearer ${accessToken}`
       }
     })
+
+    console.log(response, 'response')
 
     const data = (await response.json()) as {
       display_name: string

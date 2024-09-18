@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { api } from '@/trpc/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 // import { sendGAEvent } from '@next/third-parties/google'
@@ -76,9 +77,15 @@ export default function SpotifyForm({
   setCols: (cols: number) => void
   setLabels: (labels: boolean) => void
 }) {
+  const [error, setError] = useState<string | null>(null)
+
   const { mutate, isPending } = api.spotify.getTopAlbums.useMutation({
     onSuccess: ({ response }) => {
       setAlbums(response)
+    },
+    onError: (error) => {
+      console.error(error)
+      setError(error.message)
     }
   })
 
@@ -201,6 +208,8 @@ export default function SpotifyForm({
             'Create Spotify Collage'
           )}
         </Button>
+
+        {error && <pre>{JSON.stringify(error, null, 2)}</pre>}
       </form>
     </Form>
   )
