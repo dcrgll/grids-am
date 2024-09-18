@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers'
 import { createTRPCRouter, publicProcedure } from '@/server/api/trpc'
 import { z } from 'zod'
 
@@ -9,32 +8,34 @@ export const spotifyRouter = createTRPCRouter({
   getTopAlbums: publicProcedure
     .input(
       z.object({
-        period: z.string()
+        period: z.string(),
+        authToken: z.string()
       })
     )
     .mutation(async ({ input }) => {
-      const c = cookies()
-
-      const accessToken = c.get('spotify_access_token')
-
       const response = await getAlbumData({
         period: input.period as SpotifyPeriod,
-        accessToken: accessToken?.value ?? ''
+        authToken: input.authToken
       })
 
       return {
         response
       }
     }),
-  getUserData: publicProcedure.query(async ({}) => {
-    const c = cookies()
+  getUserData: publicProcedure
+    .input(z.object({ authToken: z.string() }))
+    .query(async ({ input }) => {
+      const response = await getUserData(input.authToken)
 
-    const accessToken = c.get('spotify_access_token')
-
-    const response = await getUserData(accessToken?.value ?? '')
-
-    return {
-      response
-    }
-  })
+      return {
+        response
+      } as {
+        error?: {
+          message: string
+        }
+        response?: {
+          display_name?: string
+        }
+      }
+    })
 })

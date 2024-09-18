@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { api } from '@/trpc/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 // import { sendGAEvent } from '@next/third-parties/google'
@@ -35,7 +34,8 @@ import {
 const formSchema = z.object({
   period: z.string(),
   gridSize: z.string(),
-  labels: z.boolean()
+  labels: z.boolean(),
+  authToken: z.string()
 })
 
 const periods = {
@@ -69,23 +69,19 @@ const gridSize = {
 }
 
 export default function SpotifyForm({
+  authToken,
   setAlbums,
   setCols,
   setLabels
 }: {
+  authToken: string
   setAlbums: (albums: SpotifyAlbum[]) => void
   setCols: (cols: number) => void
   setLabels: (labels: boolean) => void
 }) {
-  const [error, setError] = useState<string | null>(null)
-
   const { mutate, isPending } = api.spotify.getTopAlbums.useMutation({
     onSuccess: ({ response }) => {
       setAlbums(response)
-    },
-    onError: (error) => {
-      console.error(error)
-      setError(error.message)
     }
   })
 
@@ -94,7 +90,8 @@ export default function SpotifyForm({
     defaultValues: {
       period: SpotifyPeriod.short,
       gridSize: SpotifyGridSize.five,
-      labels: true
+      labels: true,
+      authToken: authToken
     }
   })
 
@@ -106,7 +103,8 @@ export default function SpotifyForm({
     setLabels(values.labels)
 
     mutate({
-      period: values.period
+      period: values.period,
+      authToken
     })
   }
 
@@ -208,8 +206,6 @@ export default function SpotifyForm({
             'Create Spotify Collage'
           )}
         </Button>
-
-        {error && <pre>{JSON.stringify(error, null, 2)}</pre>}
       </form>
     </Form>
   )

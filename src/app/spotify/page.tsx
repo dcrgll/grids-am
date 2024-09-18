@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { api } from '@/trpc/react'
-import cookies from 'js-cookie'
+import { skipToken } from '@tanstack/react-query'
 
 import { type SpotifyAlbum } from '@/types/spotify'
+import { getAuthTokenFromHash } from '@/lib/spotify'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -24,21 +25,30 @@ export default function SpotifyPage() {
   const [albums, setAlbums] = useState<SpotifyAlbum[]>([])
   const [cols, setCols] = useState<number>(3)
   const [dataUrl, setDataUrl] = useState<string | null>(null)
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
   const [labels, setLabels] = useState<boolean>(true)
+  const [authToken, setAuthToken] = useState<string>('')
 
-  const accessToken = cookies.get('spotify_access_token')
-  const { data: userData } = api.spotify.getUserData.useQuery()
+  const { data: userData, refetch } = api.spotify.getUserData.useQuery(
+    authToken
+      ? {
+          authToken
+        }
+      : skipToken
+  )
 
   useEffect(() => {
-    if (accessToken) {
-      if (userData) {
-        return setIsLoggedIn(true)
-      }
-    }
+    const _token = getAuthTokenFromHash()
 
-    return setIsLoggedIn(false)
-  }, [accessToken, userData])
+    if (_token) {
+      setAuthToken(_token)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (authToken) {
+      void refetch()
+    }
+  }, [authToken, refetch])
 
   return (
     <main className="flex min-h-screen flex-col p-4 xl:p-24">
@@ -49,15 +59,17 @@ export default function SpotifyPage() {
               <CardHeader>
                 <CardTitle>Spotify Collage Generator</CardTitle>
                 <CardDescription>
-                  Generate a collage of your most listened to albums from
-                  Spotify
+                  {userData?.response
+                    ? `Hey ${userData?.response?.display_name?.split(' ')[0]}, you can generate a collage of your most listened to albums from Spotify.`
+                    : ' Generate a collage of your most listened to albums from Spotify.'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {isLoggedIn ? (
+                {userData?.response ? (
                   <SpotifyForm
                     setAlbums={setAlbums}
                     setCols={setCols}
+                    authToken={authToken}
                     setLabels={setLabels}
                   />
                 ) : (

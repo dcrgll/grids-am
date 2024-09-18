@@ -1,10 +1,11 @@
+import { env } from '@/env'
 import {
   type SpotifyAlbum,
   type SpotifyPeriod,
   type SpotifyTrack
 } from '@/types/spotify'
 
-async function getTopTracks(accessToken: string, period: SpotifyPeriod) {
+async function getTopTracks(authToken: string, period: SpotifyPeriod) {
   const limit = 50
 
   try {
@@ -12,12 +13,10 @@ async function getTopTracks(accessToken: string, period: SpotifyPeriod) {
       `https://api.spotify.com/v1/me/top/tracks?limit=${limit}&time_range=${period}`,
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`
+          Authorization: `Bearer ${authToken}`
         }
       }
     )
-
-    console.log(response, 'response')
 
     const data = (await response.json()) as {
       items: SpotifyTrack[]
@@ -31,13 +30,13 @@ async function getTopTracks(accessToken: string, period: SpotifyPeriod) {
 }
 
 export async function getAlbumData({
-  accessToken,
+  authToken,
   period
 }: {
-  accessToken: string
+  authToken: string
   period: SpotifyPeriod
 }) {
-  const topTracks = await getTopTracks(accessToken, period)
+  const topTracks = await getTopTracks(authToken, period)
 
   if (!topTracks?.items) {
     return []
@@ -68,15 +67,15 @@ export async function removeDuplicateAlbums(albumData: SpotifyAlbum[]) {
   return uniqueAlbums
 }
 
-export async function getUserData(accessToken: string) {
+export async function getUserData(authToken: string) {
   try {
     const response = await fetch('https://api.spotify.com/v1/me', {
       headers: {
-        Authorization: `Bearer ${accessToken}`
+        Authorization: `Bearer ${authToken}`
       }
     })
 
-    console.log(response, 'response')
+    console.log(response, 'response getUserData')
 
     const data = (await response.json()) as {
       display_name: string
@@ -87,4 +86,39 @@ export async function getUserData(accessToken: string) {
     // eslint-disable-next-line no-console
     console.error(error)
   }
+}
+
+export function getAuthTokenFromHash() {
+  const hash = window.location.hash
+    .substring(1)
+    .split('&')
+    .reduce(
+      function (initial, item) {
+        if (item) {
+          const parts = item.split('=')
+          if (parts[0] && parts[1]) {
+            initial[parts[0]] = decodeURIComponent(parts[1])
+          }
+        }
+        return initial
+      },
+      {} as Record<string, string>
+    )
+
+  return hash.access_token
+}
+
+export function spotifyAuthUrl() {
+  const client_id = env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID
+  const redirect_uri = env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI
+
+  const scope = 'user-top-read'
+
+  let url = 'https://accounts.spotify.com/authorize'
+  url += '?response_type=token'
+  url += '&client_id=' + encodeURIComponent(client_id)
+  url += '&scope=' + encodeURIComponent(scope)
+  url += '&redirect_uri=' + encodeURIComponent(redirect_uri)
+
+  return url
 }
