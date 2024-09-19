@@ -90,7 +90,7 @@ export default function SpotifyForm({
     defaultValues: {
       period: SpotifyPeriod.short,
       gridSize: SpotifyGridSize.five,
-      labels: true,
+      labels: false,
       authToken: authToken
     }
   })
