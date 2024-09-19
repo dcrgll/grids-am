@@ -75,8 +75,6 @@ export async function getUserData(authToken: string) {
       }
     })
 
-    console.log(response, 'response getUserData')
-
     const data = (await response.json()) as {
       display_name: string
     }
@@ -121,4 +119,52 @@ export function spotifyAuthUrl() {
   url += '&redirect_uri=' + encodeURIComponent(redirect_uri)
 
   return url
+}
+
+const generateRandomString = (length: number) => {
+  const possible =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  const values = crypto.getRandomValues(new Uint8Array(length))
+  return values.reduce((acc, x) => acc + possible[x % possible.length], '')
+}
+
+export const codeVerifier = generateRandomString(64)
+
+export const sha256 = async (plain: string) => {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(plain)
+  return window.crypto.subtle.digest('SHA-256', data)
+}
+
+export const base64encode = (input: ArrayBuffer) => {
+  return btoa(String.fromCharCode(...new Uint8Array(input)))
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+}
+
+export const getTokenFromCode = async (code: string) => {
+  const payload = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: new URLSearchParams({
+      client_id: env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID,
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI,
+      code_verifier: window.localStorage.getItem('code_verifier') ?? ''
+    })
+  }
+
+  const body = await fetch('https://accounts.spotify.com/api/token', payload)
+
+  const response = (await body.json()) as {
+    access_token: string
+  }
+
+  localStorage.setItem('access_token', response.access_token)
+
+  return response.access_token
 }

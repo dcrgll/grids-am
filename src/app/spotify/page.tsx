@@ -7,7 +7,7 @@ import { api } from '@/trpc/react'
 import { skipToken } from '@tanstack/react-query'
 
 import { type SpotifyAlbum } from '@/types/spotify'
-import { getAuthTokenFromHash } from '@/lib/spotify'
+import { getTokenFromCode } from '@/lib/spotify'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -27,6 +27,7 @@ export default function SpotifyPage() {
   const [dataUrl, setDataUrl] = useState<string | null>(null)
   const [labels, setLabels] = useState<boolean>(true)
   const [authToken, setAuthToken] = useState<string>('')
+  const [code, setCode] = useState<string | null>(null)
 
   const { data: userData, refetch } = api.spotify.getUserData.useQuery(
     authToken
@@ -37,12 +38,21 @@ export default function SpotifyPage() {
   )
 
   useEffect(() => {
-    const _token = getAuthTokenFromHash()
+    const urlParams = new URLSearchParams(window.location.search)
+    const code = urlParams.get('code')
 
-    if (_token) {
-      setAuthToken(_token)
+    if (code) {
+      setCode(code)
     }
   }, [])
+
+  useEffect(() => {
+    if (code) {
+      void getTokenFromCode(code).then((token) => {
+        setAuthToken(token)
+      })
+    }
+  }, [code])
 
   useEffect(() => {
     if (authToken) {
