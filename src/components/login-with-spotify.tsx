@@ -25,7 +25,7 @@ export default function LoginWithSpotifyButton() {
     const params = {
       response_type: 'code',
       client_id: env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID,
-      scope: 'user-top-read',
+      scope: env.NEXT_PUBLIC_SPOTIFY_SCOPE,
       code_challenge_method: 'S256',
       code_challenge: codeChallenge,
       redirect_uri: env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI

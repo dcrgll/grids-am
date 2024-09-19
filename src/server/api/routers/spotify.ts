@@ -35,6 +35,9 @@ export const spotifyRouter = createTRPCRouter({
         }
         response?: {
           display_name?: string
+          error?: {
+            message: string
+          }
         }
       }
     })

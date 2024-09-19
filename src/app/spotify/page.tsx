@@ -47,18 +47,27 @@ export default function SpotifyPage() {
   }, [])
 
   useEffect(() => {
-    if (code) {
+    if (code && !authToken) {
       void getTokenFromCode(code).then((token) => {
         setAuthToken(token)
       })
+
+      window.history.replaceState({}, '', '/spotify')
     }
-  }, [code])
+  }, [code, authToken])
 
   useEffect(() => {
     if (authToken) {
       void refetch()
     }
   }, [authToken, refetch])
+
+  useEffect(() => {
+    if (userData?.response?.error) {
+      setAuthToken('')
+      setCode(null)
+    }
+  }, [userData])
 
   return (
     <main className="flex min-h-screen flex-col p-4 xl:p-24">
@@ -84,6 +93,11 @@ export default function SpotifyPage() {
                   />
                 ) : (
                   <LoginWithSpotifyButton />
+                )}
+                {userData?.response?.error && (
+                  <p className="mt-2 text-center text-xs text-red-500">
+                    {userData.response.error.message}
+                  </p>
                 )}
               </CardContent>
             </Card>

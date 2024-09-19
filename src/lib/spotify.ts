@@ -75,12 +75,21 @@ export async function getUserData(authToken: string) {
       }
     })
 
-    const data = (await response.json()) as {
-      display_name: string
+    if (response.status === 200) {
+      const data = (await response.json()) as {
+        display_name: string
+      }
+
+      return data
     }
 
-    return data
+    return {
+      error: {
+        message: 'Failed to fetch user data'
+      }
+    }
   } catch (error) {
+    console.log(error, 'error')
     // eslint-disable-next-line no-console
     console.error(error)
   }
@@ -110,7 +119,7 @@ export function spotifyAuthUrl() {
   const client_id = env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID
   const redirect_uri = env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI
 
-  const scope = 'user-top-read'
+  const scope = 'user-top-read user-read-private user-read-email'
 
   let url = 'https://accounts.spotify.com/authorize'
   url += '?response_type=token'
