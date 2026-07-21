@@ -1,13 +1,13 @@
 export const metadata = {
-  title: 'Grids // Spotify',
   description:
-    'Generate a collage of your most listened to albums from Spotify.'
-}
+    "Generate a collage of your most listened to albums from Spotify.",
+  title: "Grids // Spotify",
+};
 
 export default function SpotifyLayout({
-  children
+  children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  return <div>{children}</div>
+  return <div>{children}</div>;
 }

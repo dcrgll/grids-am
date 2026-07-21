@@ -1,111 +1,107 @@
-'use client'
+"use client";
 
-import { api } from '@/trpc/react'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 // import { sendGAEvent } from '@next/third-parties/google'
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { Loader2 } from 'lucide-react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-
-import {
-  SpotifyGridSize,
-  SpotifyPeriod,
-  type SpotifyAlbum
-} from '@/types/spotify'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
-} from '@/components/ui/form'
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
+  SelectValue,
+} from "@/components/ui/select";
+import { api } from "@/trpc/react";
+import { SpotifyGridSize, SpotifyPeriod } from "@/types/spotify";
+import type { SpotifyAlbum } from "@/types/spotify";
 
 const formSchema = z.object({
-  period: z.string(),
+  authToken: z.string(),
   gridSize: z.string(),
   labels: z.boolean(),
-  authToken: z.string()
-})
+  period: z.string(),
+});
 
 const periods = {
   [SpotifyPeriod.short]: {
-    label: 'Last 4 Weeks',
-    value: SpotifyPeriod.short
+    label: "Last 4 Weeks",
+    value: SpotifyPeriod.short,
   },
   [SpotifyPeriod.medium]: {
-    label: 'Last 6 Months',
-    value: SpotifyPeriod.medium
+    label: "Last 6 Months",
+    value: SpotifyPeriod.medium,
   },
   [SpotifyPeriod.long]: {
-    label: 'Last Year',
-    value: SpotifyPeriod.long
-  }
-}
+    label: "Last Year",
+    value: SpotifyPeriod.long,
+  },
+};
 
 const gridSize = {
   3: {
-    label: '3 x 3',
-    value: SpotifyGridSize.three
+    label: "3 x 3",
+    value: SpotifyGridSize.three,
   },
   4: {
-    label: '4 x 4',
-    value: SpotifyGridSize.four
+    label: "4 x 4",
+    value: SpotifyGridSize.four,
   },
   5: {
-    label: '5 x 5',
-    value: SpotifyGridSize.five
-  }
-}
+    label: "5 x 5",
+    value: SpotifyGridSize.five,
+  },
+};
 
 export default function SpotifyForm({
   authToken,
   setAlbums,
   setCols,
-  setLabels
+  setLabels,
 }: {
-  authToken: string
-  setAlbums: (albums: SpotifyAlbum[]) => void
-  setCols: (cols: number) => void
-  setLabels: (labels: boolean) => void
+  authToken: string;
+  setAlbums: (albums: SpotifyAlbum[]) => void;
+  setCols: (cols: number) => void;
+  setLabels: (labels: boolean) => void;
 }) {
   const { mutate, isPending } = api.spotify.getTopAlbums.useMutation({
     onSuccess: ({ response }) => {
-      setAlbums(response)
-    }
-  })
+      setAlbums(response);
+    },
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
     defaultValues: {
-      period: SpotifyPeriod.short,
+      authToken: authToken,
       gridSize: SpotifyGridSize.five,
       labels: false,
-      authToken: authToken
-    }
-  })
+      period: SpotifyPeriod.short,
+    },
+    resolver: zodResolver(formSchema),
+  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setAlbums([])
+    setAlbums([]);
 
     // sendGAEvent('event', 'form_submitted', { value: values.username })
-    setCols(parseInt(values.gridSize))
-    setLabels(values.labels)
+    setCols(Number.parseInt(values.gridSize));
+    setLabels(values.labels);
 
     mutate({
+      authToken,
       period: values.period,
-      authToken
-    })
+    });
   }
 
   return (
@@ -203,10 +199,10 @@ export default function SpotifyForm({
           {isPending ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
-            'Create Spotify Collage'
+            "Create Spotify Collage"
           )}
         </Button>
       </form>
     </Form>
-  )
+  );
 }

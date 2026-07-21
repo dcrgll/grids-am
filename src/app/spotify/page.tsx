@@ -1,73 +1,73 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { api } from '@/trpc/react'
-import { skipToken } from '@tanstack/react-query'
+import { skipToken } from "@tanstack/react-query";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
-import { type SpotifyAlbum } from '@/types/spotify'
-import { getTokenFromCode } from '@/lib/spotify'
-import { Button } from '@/components/ui/button'
+import LoginWithSpotifyButton from "@/components/login-with-spotify";
+import SpotifyForm from "@/components/spotify-form";
+import SpotifyImageGrid from "@/components/spotify-image-grid";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
-} from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import LoginWithSpotifyButton from '@/components/login-with-spotify'
-import SpotifyForm from '@/components/spotify-form'
-import SpotifyImageGrid from '@/components/spotify-image-grid'
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getTokenFromCode } from "@/lib/spotify";
+import { api } from "@/trpc/react";
+import type { SpotifyAlbum } from "@/types/spotify";
 
 export default function SpotifyPage() {
-  const [albums, setAlbums] = useState<SpotifyAlbum[]>([])
-  const [cols, setCols] = useState<number>(3)
-  const [dataUrl, setDataUrl] = useState<string | null>(null)
-  const [labels, setLabels] = useState<boolean>(true)
-  const [authToken, setAuthToken] = useState<string>('')
-  const [code, setCode] = useState<string | null>(null)
+  const [albums, setAlbums] = useState<SpotifyAlbum[]>([]);
+  const [cols, setCols] = useState<number>(3);
+  const [dataUrl, setDataUrl] = useState<string | null>(null);
+  const [labels, setLabels] = useState<boolean>(true);
+  const [authToken, setAuthToken] = useState<string>("");
+  const [code, setCode] = useState<string | null>(null);
 
   const { data: userData, refetch } = api.spotify.getUserData.useQuery(
     authToken
       ? {
-          authToken
+          authToken,
         }
       : skipToken
-  )
+  );
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const code = urlParams.get('code')
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
 
     if (code) {
-      setCode(code)
+      setCode(code);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (code && !authToken) {
       void getTokenFromCode(code).then((token) => {
-        setAuthToken(token)
-      })
+        setAuthToken(token);
+      });
 
-      window.history.replaceState({}, '', '/spotify')
+      window.history.replaceState({}, "", "/spotify");
     }
-  }, [code, authToken])
+  }, [code, authToken]);
 
   useEffect(() => {
     if (authToken) {
-      void refetch()
+      void refetch();
     }
-  }, [authToken, refetch])
+  }, [authToken, refetch]);
 
   useEffect(() => {
     if (userData?.response?.error) {
-      setAuthToken('')
-      setCode(null)
+      setAuthToken("");
+      setCode(null);
     }
-  }, [userData])
+  }, [userData]);
 
   return (
     <main className="flex min-h-screen flex-col p-4 xl:p-24">
@@ -79,8 +79,8 @@ export default function SpotifyPage() {
                 <CardTitle>Spotify Collage Generator</CardTitle>
                 <CardDescription>
                   {userData?.response
-                    ? `Hey ${userData?.response?.display_name?.split(' ')[0]}, you can generate a collage of your most listened to albums from Spotify.`
-                    : ' Generate a collage of your most listened to albums from Spotify.'}
+                    ? `Hey ${userData?.response?.display_name?.split(" ")[0]}, you can generate a collage of your most listened to albums from Spotify.`
+                    : " Generate a collage of your most listened to albums from Spotify."}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -139,49 +139,49 @@ export default function SpotifyPage() {
         </div>
       </div>
     </main>
-  )
+  );
 }
 
 function dataURItoBlob(dataURI: string) {
   // convert base64 to raw binary data held in a string
   // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
-  const byteString = atob(dataURI.split(',')[1] ?? '')
+  const byteString = atob(dataURI.split(",")[1] ?? "");
   // separate out the mime component
-  const mimeString = dataURI.split(',')[0]?.split(':')[1]?.split(';')[0] ?? ''
+  const mimeString = dataURI.split(",")[0]?.split(":")[1]?.split(";")[0] ?? "";
 
   // write the bytes of the string to an ArrayBuffer
-  const ab = new ArrayBuffer(byteString.length)
+  const ab = new ArrayBuffer(byteString.length);
 
   // create a view into the buffer
-  const ia = new Uint8Array(ab)
+  const ia = new Uint8Array(ab);
 
   // set the bytes of the buffer to the correct values
   for (let i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i)
+    ia[i] = byteString.codePointAt(i) ?? 0;
   }
 
   // write the ArrayBuffer to a blob, and you're done
-  const blob = new Blob([ab], { type: mimeString })
-  return blob
+  const blob = new Blob([ab], { type: mimeString });
+  return blob;
 }
 
 async function triggerShare(dataUrl: string) {
-  const blob = dataURItoBlob(dataUrl)
+  const blob = dataURItoBlob(dataUrl);
 
   const filesArray = [
-    new File([blob], 'lastfm-collage.png', {
-      type: 'image/png',
-      lastModified: Date.now()
-    })
-  ]
+    new File([blob], "lastfm-collage.png", {
+      lastModified: Date.now(),
+      type: "image/png",
+    }),
+  ];
 
   const shareData = {
-    title: 'Last.fm Collage',
     files: filesArray,
-    url: document.location.origin
-  }
+    title: "Last.fm Collage",
+    url: document.location.origin,
+  };
 
   if (navigator?.canShare(shareData)) {
-    await navigator.share(shareData)
+    await navigator.share(shareData);
   }
 }

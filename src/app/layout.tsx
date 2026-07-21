@@ -1,24 +1,24 @@
-import '@/styles/globals.css'
+import "@/styles/globals.css";
+import { env } from "node:process";
 
-import { env } from 'process'
-import { TRPCReactProvider } from '@/trpc/react'
-import { GoogleAnalytics } from '@next/third-parties/google'
-import { GeistSans } from 'geist/font/sans'
+import { GoogleAnalytics } from "@next/third-parties/google";
+import { GeistSans } from "geist/font/sans";
 
-import { meta } from '@/lib/meta'
+import { meta } from "@/lib/meta";
+import { TRPCReactProvider } from "@/trpc/react";
 
 export const metadata = {
-  ...meta
-}
+  ...meta,
+};
 
 export const viewport = {
-  width: 'device-width',
   initialScale: 1,
-  maximumScale: 1
-}
+  maximumScale: 1,
+  width: "device-width",
+};
 
 export default function RootLayout({
-  children
+  children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
@@ -27,5 +27,5 @@ export default function RootLayout({
       </body>
       <GoogleAnalytics gaId={env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID!} />
     </html>
-  )
+  );
 }

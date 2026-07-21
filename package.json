@@ -6,15 +6,11 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev --turbo",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "lint": "next lint",
-    "outdated": "bunx npm-check-updates --root --format group -i",
+    "lint": "ultracite fix",
+    "lint:check": "ultracite check",
+    "typecheck": "tsc --noEmit",
+    "outdated": "pnpm dlx npm-check-updates --root --format group -i",
     "start": "next start"
-  },
-  "prettier": "@dc_/prettier-config",
-  "eslintConfig": {
-    "extends": "@dc_/eslint-config"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -46,17 +42,16 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
-    "@dc_/eslint-config": "^1.0.1",
-    "@dc_/prettier-config": "^1.0.3",
-    "@types/eslint": "^8.56.10",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^25.0.3",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "eslint": "^8.57.0",
+    "oxfmt": "0.59.0",
+    "oxlint": "1.74.0",
     "postcss": "^8.5.6",
-    "prettier": "^3.7.4",
     "tailwindcss": "^3.4.12",
-    "typescript": "^5.9.3"
-  }
+    "typescript": "^5.9.3",
+    "ultracite": "^7.9.4"
+  },
+  "packageManager": "pnpm@11.15.1"
 }

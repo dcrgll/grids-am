@@ -1,25 +1,26 @@
 /** @type {import('next').NextConfig} */
 
-import { fileURLToPath } from 'node:url'
-import createJiti from 'jiti'
+import { fileURLToPath } from "node:url";
 
-const jiti = createJiti(fileURLToPath(import.meta.url))
+import createJiti from "jiti";
 
-jiti('./src/env')
+const jiti = createJiti(import.meta.filename);
+
+jiti("./src/env");
 
 const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/lastfm/images/:path*',
-        destination: 'https://lastfm.freetls.fastly.net/:path*'
+        destination: "https://lastfm.freetls.fastly.net/:path*",
+        source: "/api/lastfm/images/:path*",
       },
       {
-        source: '/api/spotify/images/:path*',
-        destination: 'https://i.scdn.co/:path*'
-      }
-    ]
-  }
-}
+        destination: "https://i.scdn.co/:path*",
+        source: "/api/spotify/images/:path*",
+      },
+    ];
+  },
+};
 
-export default nextConfig
+export default nextConfig;
